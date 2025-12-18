@@ -1,0 +1,34 @@
+软工大作业/
+├── uniCloud/
+│   ├── cloudfunctions/           # 云函数
+│   │   ├── content-manager/      # 内容管理云函数
+│   │   ├── comment-system/       # 评论系统云函数
+│   │   ├── user-profile/         # 用户资料管理云函数
+│   │   └── common-utils/         # 公共工具函数
+│   ├── database/                 # 数据库集合定义
+│   │   ├── contents.schema.json  # 内容表结构
+│   │   ├── comments.schema.json  # 评论表结构
+│   │   └── friendships.schema.json # 好友关系表结构
+│   └── uni-id-common/            # 用户身份验证模块
+├── pages/                        # 小程序页面
+│   ├── index/                    # 首页
+│   ├── content/                  # 内容相关页面
+│   │   ├── upload/              # 上传页面
+│   │   ├── detail/              # 详情页面
+│   │   └── list/                # 内容列表页面，标签
+│   │   ├── evaluate/              # 评价
+│   │   ├── comment/              # 评论
+│   ├── user/                     # 用户相关页面
+│   │   ├── profile/             # 个人资料
+│   │   ├── login/               # 登录
+│   │   └── register/            # 注册
+│   └── friend/                   # 好友相关页面
+├── static/                       # 静态资源
+├── uni_modules/                  # uni-app插件
+├── admin/                        # Web管理后台（基于uni-admin）
+│   ├── pages/                   # 管理后台页面
+│   │   ├── content/             # 内容管理
+│   │   ├── user/                # 用户管理
+│   │   └── dashboard/           # 数据概览
+│   └── uni_modules/             # 管理后台插件
+└── 配置文件（manifest.json、pages.json等）
