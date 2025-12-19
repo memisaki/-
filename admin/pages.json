@@ -1,0 +1,41 @@
+{
+	"pages": [
+		{
+			"path": "pages/dashboard/index",
+			"style": {
+				"navigationBarTitleText": "数据概览"
+			}
+		},
+		{
+			"path": "pages/content/index",
+			"style": {
+				"navigationBarTitleText": "内容管理"
+			}
+		},
+		{
+			"path": "pages/content/edit",
+			"style": {
+				"navigationBarTitleText": "编辑内容"
+			}
+		},
+		{
+			"path": "pages/user/index",
+			"style": {
+				"navigationBarTitleText": "用户管理"
+			}
+		},
+		{
+			"path": "pages/user/detail",
+			"style": {
+				"navigationBarTitleText": "用户详情"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "管理后台",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f6f7f9"
+	}
+}
+

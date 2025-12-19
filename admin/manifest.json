@@ -1,0 +1,14 @@
+{
+	"name": "软工大作业-管理后台",
+	"appid": "__UNI__B0480DC_ADMIN",
+	"description": "",
+	"versionName": "1.0.0",
+	"versionCode": "100",
+	"vueVersion": "3",
+	"web": {
+		"router": {
+			"mode": "history"
+		}
+	}
+}
+
