@@ -1,6 +1,9 @@
 {
   "bsonType": "object",
-  "required": ["content_id", "user_id"],
+  "required": [
+    "content_id",
+    "user_id"
+  ],
   "permission": {
     "read": "auth.uid != null",
     "create": "auth.uid != null",
@@ -13,22 +16,21 @@
     },
     "content_id": {
       "bsonType": "string",
-      "title": "内容ID",
+      "description": "内容ID，指向contents表",
       "foreignKey": "contents._id"
     },
     "user_id": {
       "bsonType": "string",
-      "title": "用户ID",
+      "description": "用户ID",
       "foreignKey": "uni-id-users._id"
     },
     "folder_id": {
       "bsonType": "string",
-      "title": "收藏夹ID",
-      "description": "可以分类收藏内容"
+      "description": "收藏夹ID，可以分类收藏内容"
     },
     "tags": {
       "bsonType": "array",
-      "title": "收藏标签",
+      "description": "收藏标签",
       "items": {
         "bsonType": "string",
         "trim": "both"
@@ -36,39 +38,57 @@
     },
     "note": {
       "bsonType": "string",
-      "title": "收藏备注",
+      "description": "收藏备注",
       "maxLength": 200
     },
     "create_date": {
       "bsonType": "timestamp",
-      "title": "收藏时间",
-      "defaultValue": {
+      "description": "收藏时间",
+      "forceDefaultValue": {
         "$env": "now"
       }
     },
     "update_date": {
       "bsonType": "timestamp",
-      "title": "更新时间",
-      "defaultValue": {
+      "description": "更新时间",
+      "forceDefaultValue": {
         "$env": "now"
       }
     }
   },
   "indexes": [
     {
-      "name": "content_user_idx",
-      "keys": {
-        "content_id": 1,
-        "user_id": 1
+      "IndexName": "content_user_idx",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "content_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "user_id",
+            "Direction": "1"
+          }
+        ]
       },
-      "unique": true
+      "MgoIsUnique": true
     },
     {
-      "name": "user_create_date_idx",
-      "keys": {
-        "user_id": 1,
-        "create_date": -1
-      }
+      "IndexName": "user_create_date_idx",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "user_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "create_date",
+            "Direction": "-1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
     }
-  ]
+  ],
+  "version": "1.0.0"
 }

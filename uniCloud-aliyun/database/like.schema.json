@@ -1,6 +1,9 @@
 {
   "bsonType": "object",
-  "required": ["content_id", "user_id"],
+  "required": [
+    "content_id",
+    "user_id"
+  ],
   "permission": {
     "read": "auth.uid != null",
     "create": "auth.uid != null",
@@ -13,48 +16,64 @@
     },
     "content_id": {
       "bsonType": "string",
-      "title": "内容ID",
+      "description": "内容ID，指向contents表",
       "foreignKey": "contents._id"
     },
     "user_id": {
       "bsonType": "string",
-      "title": "用户ID",
+      "description": "用户ID",
       "foreignKey": "uni-id-users._id"
     },
     "type": {
       "bsonType": "int",
-      "title": "点赞类型",
-      "description": "1:内容点赞 2:评论点赞",
+      "description": "点赞类型，1: 内容点赞，2: 评论点赞",
       "defaultValue": 1
     },
     "target_id": {
       "bsonType": "string",
-      "title": "目标ID",
-      "description": "当type=2时，为评论ID"
+      "description": "目标ID，当type=2时，为评论ID"
     },
     "create_date": {
       "bsonType": "timestamp",
-      "title": "点赞时间",
-      "defaultValue": {
+      "description": "点赞时间",
+      "forceDefaultValue": {
         "$env": "now"
       }
     }
   },
   "indexes": [
     {
-      "name": "content_user_idx",
-      "keys": {
-        "content_id": 1,
-        "user_id": 1
+      "IndexName": "content_user_idx",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "content_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "user_id",
+            "Direction": "1"
+          }
+        ]
       },
-      "unique": true
+      "MgoIsUnique": true
     },
     {
-      "name": "user_create_date_idx",
-      "keys": {
-        "user_id": 1,
-        "create_date": -1
-      }
+      "IndexName": "user_create_date_idx",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "user_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "create_date",
+            "Direction": "-1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
     }
-  ]
+  ],
+  "version": "1.0.0"
 }
