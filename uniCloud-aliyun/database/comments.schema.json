@@ -1,0 +1,341 @@
+{
+  "bsonType": "object",
+  "required": [
+    "content_id",
+    "user_id",
+    "comment_content"
+  ],
+  "permission": {
+    "read": "doc.status != 'hidden' && doc.content_status != 'deleted'",
+    "create": "auth.uid != null",
+    "update": "doc.user_id == auth.uid",
+    "delete": "doc.user_id == auth.uid || 'ADMIN' in auth.role"
+  },
+  "properties": {
+    "_id": {
+      "description": "评论ID，系统自动生成"
+    },
+    "content_id": {
+      "bsonType": "string",
+      "description": "内容ID，指向contents表",
+      "foreignKey": "contents._id"
+    },
+    "content_user_id": {
+      "bsonType": "string",
+      "description": "内容发布者ID（冗余字段，便于查询）",
+      "foreignKey": "users._id"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "评论者ID",
+      "forceDefaultValue": {
+        "$env": "uid"
+      },
+      "foreignKey": "users._id"
+    },
+    "comment_content": {
+      "bsonType": "string",
+      "description": "评论内容",
+      "title": "评论内容",
+      "trim": "right",
+      "maxLength": 2000
+    },
+    "rating": {
+      "bsonType": "int",
+      "description": "评分（1-5星）",
+      "minimum": 1,
+      "maximum": 5,
+      "defaultValue": null
+    },
+    "like_count": {
+      "bsonType": "int",
+      "description": "点赞数",
+      "defaultValue": 0
+    },
+    "reply_count": {
+      "bsonType": "int",
+      "description": "回复数",
+      "defaultValue": 0
+    },
+    "reply_user_id": {
+      "bsonType": "string",
+      "description": "被回复的用户ID",
+      "foreignKey": "uni-id-users._id",
+      "defaultValue": null
+    },
+    "reply_comment_id": {
+      "bsonType": "string",
+      "description": "被回复的评论ID",
+      "foreignKey": "comments._id",
+      "defaultValue": null
+    },
+    "media_files": {
+      "bsonType": "array",
+      "description": "评论中的媒体文件（图片）",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "url": {
+            "bsonType": "string",
+            "description": "文件URL"
+          },
+          "file_type": {
+            "bsonType": "string",
+            "description": "文件类型"
+          },
+          "thumbnail": {
+            "bsonType": "string",
+            "description": "缩略图URL"
+          }
+        }
+      }
+    },
+    "status": {
+      "bsonType": "string",
+      "description": "评论状态",
+      "enum": [
+        "published",
+        "hidden",
+        "deleted"
+      ],
+      "defaultValue": "published"
+    },
+    "content_status": {
+      "bsonType": "string",
+      "description": "关联内容的状态（冗余字段）",
+      "enum": [
+        "published",
+        "hidden",
+        "deleted"
+      ],
+      "defaultValue": "published"
+    },
+    "visibility": {
+      "bsonType": "string",
+      "description": "关联内容的可见性（冗余字段）",
+      "enum": [
+        "public",
+        "private",
+        "friends_only"
+      ],
+      "defaultValue": "public"
+    },
+    "content_check": {
+      "bsonType": "object",
+      "description": "评论审核结果",
+      "properties": {
+        "status": {
+          "bsonType": "string",
+          "description": "审核状态：pending, passed, rejected",
+          "enum": [
+            "pending",
+            "passed",
+            "rejected"
+          ],
+          "defaultValue": "pending"
+        },
+        "sensitive_words": {
+          "bsonType": "array",
+          "description": "检测到的敏感词",
+          "items": {
+            "bsonType": "string"
+          }
+        },
+        "check_time": {
+          "bsonType": "timestamp",
+          "description": "审核时间"
+        },
+        "reject_reason": {
+          "bsonType": "string",
+          "description": "拒绝原因"
+        }
+      }
+    },
+    "ai_analysis": {
+      "bsonType": "object",
+      "description": "AI分析结果",
+      "properties": {
+        "sentiment": {
+          "bsonType": "string",
+          "description": "情感分析：positive, negative, neutral"
+        },
+        "sentiment_score": {
+          "bsonType": "double",
+          "description": "情感得分（-1到1）"
+        },
+        "tags": {
+          "bsonType": "array",
+          "description": "AI提取的关键词",
+          "items": {
+            "bsonType": "string"
+          }
+        },
+        "summary": {
+          "bsonType": "string",
+          "description": "AI生成的摘要"
+        }
+      }
+    },
+    "metadata": {
+      "bsonType": "object",
+      "description": "元数据",
+      "properties": {
+        "device": {
+          "bsonType": "string",
+          "description": "评论设备"
+        },
+        "platform": {
+          "bsonType": "string",
+          "description": "平台：app, web, mp等"
+        },
+        "version": {
+          "bsonType": "string",
+          "description": "客户端版本"
+        },
+        "user_agent": {
+          "bsonType": "string",
+          "description": "User-Agent"
+        }
+      }
+    },
+    "is_top": {
+      "bsonType": "bool",
+      "description": "是否置顶",
+      "defaultValue": false
+    },
+    "is_hot": {
+      "bsonType": "bool",
+      "description": "是否为热门评论",
+      "defaultValue": false
+    },
+    "created_at": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "updated_at": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "deleted_at": {
+      "bsonType": "timestamp",
+      "description": "删除时间（软删除）"
+    },
+    "comment_ip": {
+      "bsonType": "string",
+      "description": "评论发表时 IP 地址",
+      "forceDefaultValue": {
+        "$env": "clientIP"
+      }
+    },
+    "location": {
+      "bsonType": "object",
+      "description": "地理位置信息",
+      "properties": {
+        "name": {
+          "bsonType": "string",
+          "description": "地点名称"
+        },
+        "coordinates": {
+          "bsonType": "array",
+          "description": "经纬度坐标",
+          "items": {
+            "bsonType": "double"
+          }
+        }
+      }
+    }
+  },
+  "indexes": [
+    {
+      "IndexName": "idx_content_created",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "content_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "created_at",
+            "Direction": "-1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
+    },
+    {
+      "IndexName": "idx_user_content",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "user_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "content_id",
+            "Direction": "1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
+    },
+    {
+      "IndexName": "idx_parent_status",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "parent_comment_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "status",
+            "Direction": "1"
+          },
+          {
+            "Name": "created_at",
+            "Direction": "1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
+    },
+    {
+      "IndexName": "idx_rating",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "content_id",
+            "Direction": "1"
+          },
+          {
+            "Name": "rating",
+            "Direction": "1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
+    },
+    {
+      "IndexName": "idx_status_created",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [
+          {
+            "Name": "status",
+            "Direction": "1"
+          },
+          {
+            "Name": "created_at",
+            "Direction": "-1"
+          }
+        ]
+      },
+      "MgoIsUnique": false
+    }
+  ],
+  "version": "1.0.0"
+}
