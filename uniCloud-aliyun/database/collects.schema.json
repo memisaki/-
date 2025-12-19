@@ -1,0 +1,74 @@
+{
+  "bsonType": "object",
+  "required": ["content_id", "user_id"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "delete": "doc.user_id == auth.uid",
+    "update": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "content_id": {
+      "bsonType": "string",
+      "title": "内容ID",
+      "foreignKey": "contents._id"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "title": "用户ID",
+      "foreignKey": "uni-id-users._id"
+    },
+    "folder_id": {
+      "bsonType": "string",
+      "title": "收藏夹ID",
+      "description": "可以分类收藏内容"
+    },
+    "tags": {
+      "bsonType": "array",
+      "title": "收藏标签",
+      "items": {
+        "bsonType": "string",
+        "trim": "both"
+      }
+    },
+    "note": {
+      "bsonType": "string",
+      "title": "收藏备注",
+      "maxLength": 200
+    },
+    "create_date": {
+      "bsonType": "timestamp",
+      "title": "收藏时间",
+      "defaultValue": {
+        "$env": "now"
+      }
+    },
+    "update_date": {
+      "bsonType": "timestamp",
+      "title": "更新时间",
+      "defaultValue": {
+        "$env": "now"
+      }
+    }
+  },
+  "indexes": [
+    {
+      "name": "content_user_idx",
+      "keys": {
+        "content_id": 1,
+        "user_id": 1
+      },
+      "unique": true
+    },
+    {
+      "name": "user_create_date_idx",
+      "keys": {
+        "user_id": 1,
+        "create_date": -1
+      }
+    }
+  ]
+}
