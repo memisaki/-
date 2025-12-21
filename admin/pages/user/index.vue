@@ -1,3 +1,9 @@
+<!-- 
+  文件说明：用户管理页面
+  功能：展示用户列表、筛选用户、查看详情、启用/禁用用户、删除用户
+  作者：程世权
+  创建时间：2025-12-18
+-->
 <template>
 	<view class="layout">
 		<view class="sidebar">
@@ -24,9 +30,13 @@
 						<input class="input" v-model="filters.keyword" placeholder="昵称/账号/手机号/邮箱" />
 					</view>
 					<view class="field">
-						<view class="label">状态</view>
-						<picker :range="statusOptions" range-key="label" @change="onStatusChange">
-							<view class="select">{{ currentStatusLabel }}</view>
+						<view class="label">注册时间</view>
+						<picker mode="date" @change="onStartDateChange">
+							<view class="select">{{ filters.startDate || '开始日期' }}</view>
+						</picker>
+						<text style="margin: 0 4px; color:#999;">-</text>
+						<picker mode="date" @change="onEndDateChange">
+							<view class="select">{{ filters.endDate || '结束日期' }}</view>
 						</picker>
 					</view>
 					<view class="row" style="gap: 8px;">
@@ -55,6 +65,7 @@
 						<view class="actions">
 							<view class="link" @click="viewDetail(item)">详情</view>
 							<view class="link" @click="toggleStatus(item)">{{ item.status === 'disabled' ? '启用' : '禁用' }}</view>
+							<view class="link" style="color:#ef4444;" @click="removeUser(item)">删除</view>
 						</view>
 					</view>
 				</view>
@@ -84,6 +95,8 @@ const statusOptions = [
 const filters = ref({
 	keyword: '',
 	status: '',
+	startDate: '',
+	endDate: ''
 })
 
 const page = ref(1)
@@ -99,6 +112,14 @@ function go(url) {
 function onStatusChange(e) {
 	const idx = Number(e.detail.value)
 	filters.value.status = statusOptions[idx]?.value ?? ''
+}
+
+function onStartDateChange(e) {
+	filters.value.startDate = e.detail.value
+}
+
+function onEndDateChange(e) {
+	filters.value.endDate = e.detail.value
 }
 
 function formatDateTime(value) {
@@ -135,6 +156,19 @@ function buildWhere(db) {
 		const reg = db.RegExp({ regexp: filters.value.keyword, options: 'i' })
 		where.nickname = reg
 	}
+	if (filters.value.startDate || filters.value.endDate) {
+		where.register_date = {}
+		if (filters.value.startDate) where.register_date = db.command.gte(new Date(filters.value.startDate).getTime())
+		if (filters.value.endDate) {
+			// 结束日期加一天，覆盖当天
+			const end = new Date(filters.value.endDate).getTime() + 86400000
+			if (where.register_date.code) { // 已经有 gte
+				where.register_date = db.command.and([where.register_date, db.command.lt(end)])
+			} else {
+				where.register_date = db.command.lt(end)
+			}
+		}
+	}
 	return where
 }
 
@@ -147,7 +181,7 @@ async function applyFilters() {
 }
 
 async function resetFilters() {
-	filters.value = { keyword: '', status: '' }
+	filters.value = { keyword: '', status: '', startDate: '', endDate: '' }
 	await loadPage(1)
 }
 
@@ -188,6 +222,26 @@ async function toggleStatus(item) {
 		uni.showToast({ title: '已更新', icon: 'none' })
 	} catch (e) {
 		uni.showToast({ title: '更新失败', icon: 'none' })
+	}
+}
+
+async function removeUser(item) {
+	const res = await uni.showModal({
+		title: '确认删除',
+		content: '删除用户是危险操作，将无法恢复，且可能影响关联数据。是否确认删除？',
+	})
+	if (!res.confirm) return
+	try {
+		uni.showLoading({ title: '删除中...' })
+		const adminObj = uniCloud.importObject('admin-operation')
+		await adminObj.deleteUser(item._id)
+		uni.hideLoading()
+		uni.showToast({ title: '已删除', icon: 'none' })
+		await loadPage(page.value)
+	} catch (e) {
+		uni.hideLoading()
+		console.error(e)
+		uni.showToast({ title: e.message || '删除失败', icon: 'none' })
 	}
 }
 

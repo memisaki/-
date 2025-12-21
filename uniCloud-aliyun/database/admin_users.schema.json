@@ -1,0 +1,46 @@
+{
+	"bsonType": "object",
+	"required": ["username"],
+	"permission": {
+		"read": false,
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"username": {
+			"bsonType": "string",
+			"description": "用户名",
+			"title": "用户名"
+		},
+		"passwordHash": {
+			"bsonType": "string",
+			"description": "密码哈希",
+			"title": "密码哈希"
+		},
+		"salt": {
+			"bsonType": "string",
+			"description": "密码盐",
+			"title": "密码盐"
+		},
+		"status": {
+			"bsonType": "string",
+			"description": "用户状态：active 正常, disabled 禁用",
+			"title": "用户状态",
+			"defaultValue": "active"
+		},
+		"create_time": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"title": "创建时间"
+		},
+		"update_time": {
+			"bsonType": "timestamp",
+			"description": "更新时间",
+			"title": "更新时间"
+		}
+	}
+}

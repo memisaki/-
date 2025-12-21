@@ -1,3 +1,9 @@
+<!-- 
+  文件说明：内容管理页面
+  功能：展示内容列表、筛选内容、内容审核（通过/拒绝）、删除内容、新建内容
+  作者：程世权
+  创建时间：2025-12-18
+-->
 <template>
 	<view class="layout">
 		<view class="sidebar">
@@ -34,6 +40,12 @@
 						<view class="label">标签</view>
 						<input class="input" v-model="filters.tag" placeholder="例如：美食/校园" />
 					</view>
+					<view class="field">
+						<view class="label">类型</view>
+						<picker :range="typeOptions" range-key="label" @change="onTypeChange">
+							<view class="select">{{ currentTypeLabel }}</view>
+						</picker>
+					</view>
 					<view class="row" style="gap: 8px;">
 						<view class="btn" @click="applyFilters">查询</view>
 						<view class="btn secondary" @click="resetFilters">重置</view>
@@ -58,6 +70,10 @@
 					<view class="cell"><view class="muted">{{ item.createdAtText || '-' }}</view></view>
 					<view class="cell">
 						<view class="actions">
+							<template v-if="item.status === 'pending'">
+								<view class="link" style="color:#22c55e;" @click="audit(item, 'published')">通过</view>
+								<view class="link" style="color:#ef4444;" @click="audit(item, 'disabled')">拒绝</view>
+							</template>
 							<view class="link" @click="edit(item)">编辑</view>
 							<view class="link" style="color:#ef4444;" @click="remove(item)">删除</view>
 						</view>
@@ -82,15 +98,24 @@ import { computed, onMounted, ref } from 'vue'
 
 const statusOptions = [
 	{ label: '全部', value: '' },
+	{ label: '待审核', value: 'pending' },
 	{ label: '草稿', value: 'draft' },
 	{ label: '已发布', value: 'published' },
 	{ label: '已下架', value: 'disabled' },
+]
+
+const typeOptions = [
+	{ label: '全部', value: '' },
+	{ label: '图片', value: 'image' },
+	{ label: '视频', value: 'video' },
+	{ label: '文本', value: 'text' },
 ]
 
 const filters = ref({
 	keyword: '',
 	status: '',
 	tag: '',
+	type: ''
 })
 
 const page = ref(1)
@@ -98,6 +123,7 @@ const pageSize = ref(10)
 const rows = ref([])
 
 const currentStatusLabel = computed(() => statusOptions.find((x) => x.value === filters.value.status)?.label ?? '全部')
+const currentTypeLabel = computed(() => typeOptions.find((x) => x.value === filters.value.type)?.label ?? '全部')
 
 function go(url) {
 	uni.redirectTo({ url })
@@ -110,6 +136,11 @@ function createNew() {
 function onStatusChange(e) {
 	const idx = Number(e.detail.value)
 	filters.value.status = statusOptions[idx]?.value ?? ''
+}
+
+function onTypeChange(e) {
+	const idx = Number(e.detail.value)
+	filters.value.type = typeOptions[idx]?.value ?? ''
 }
 
 function formatDateTime(value) {
@@ -140,6 +171,7 @@ function normalizeContent(doc) {
 function buildWhere(db) {
 	const where = {}
 	if (filters.value.status) where.status = filters.value.status
+	if (filters.value.type) where.type = filters.value.type
 	if (filters.value.tag) where.tags = db.command.in([filters.value.tag])
 	if (filters.value.keyword) {
 		const reg = db.RegExp({
@@ -160,7 +192,7 @@ async function applyFilters() {
 }
 
 async function resetFilters() {
-	filters.value = { keyword: '', status: '', tag: '' }
+	filters.value = { keyword: '', status: '', tag: '', type: '' }
 	await loadPage(1)
 }
 
@@ -186,17 +218,39 @@ function edit(item) {
 	uni.navigateTo({ url: `/pages/content/edit?id=${encodeURIComponent(item._id)}` })
 }
 
+async function audit(item, status) {
+	const actionName = status === 'published' ? '通过' : '拒绝'
+	const res = await uni.showModal({ title: `确认${actionName}`, content: `确定要${actionName}该内容吗？` })
+	if (!res.confirm) return
+
+	try {
+		uni.showLoading({ title: '处理中...' })
+		const adminObj = uniCloud.importObject('admin-operation')
+		await adminObj.auditContent(item._id, status)
+		uni.hideLoading()
+		uni.showToast({ title: '已更新', icon: 'none' })
+		await loadPage(page.value)
+	} catch (e) {
+		uni.hideLoading()
+		console.error(e)
+		uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+	}
+}
+
 async function remove(item) {
 	const res = await uni.showModal({ title: '确认删除', content: '删除后不可恢复，是否继续？' })
 	if (!res.confirm) return
 	try {
-		if (!globalThis.uniCloud?.database) return
-		const db = uniCloud.database()
-		await db.collection('contents').doc(item._id).remove()
+		uni.showLoading({ title: '删除中...' })
+		const adminObj = uniCloud.importObject('admin-operation')
+		await adminObj.deleteContent(item._id)
+		uni.hideLoading()
 		uni.showToast({ title: '已删除', icon: 'none' })
 		await loadPage(page.value)
 	} catch (e) {
-		uni.showToast({ title: '删除失败', icon: 'none' })
+		uni.hideLoading()
+		console.error(e)
+		uni.showToast({ title: e.message || '删除失败', icon: 'none' })
 	}
 }
 

@@ -1,3 +1,9 @@
+<!-- 
+  文件说明：内容编辑页面
+  功能：新建/编辑内容、保存内容到云数据库
+  作者：程世权
+  创建时间：2025-12-18
+-->
 <template>
 	<view class="layout">
 		<view class="sidebar">

@@ -1,3 +1,9 @@
+<!-- 
+  文件说明：用户详情页面
+  功能：展示用户详细信息、原始数据JSON查看
+  作者：程世权
+  创建时间：2025-12-18
+-->
 <template>
 	<view class="layout">
 		<view class="sidebar">
