@@ -1,23 +1,22 @@
 软工大作业/
-├── uniCloud/
+├── uniCloud-aliyun/
 │   ├── cloudfunctions/           # 云函数
-│   │   ├── content-manager/      # 内容管理云函数
-│   │   ├── comment-system/       # 评论系统云函数
-│   │   ├── user-profile/         # 用户资料管理云函数
+│   │   ├── content-api/      # 内容管理API
+│   │   ├── comment-api/       # 评论系统API
+│   │   ├── user-api/         # 用户认证API
+│   │   ├── admin-api/         # 后台管理API
 │   │   └── common-utils/         # 公共工具函数
 │   ├── database/                 # 数据库集合定义
 │   │   ├── contents.schema.json  # 内容表结构
 │   │   ├── comments.schema.json  # 评论表结构
-│   │   └── friendships.schema.json # 好友关系表结构
+│   │   └── uni-id-users.schema.json # 用户表结构
 │   └── uni-id-common/            # 用户身份验证模块
 ├── pages/                        # 小程序页面
 │   ├── index/                    # 首页
 │   ├── content/                  # 内容相关页面
 │   │   ├── upload/              # 上传页面
-│   │   ├── detail/              # 详情页面
-│   │   └── list/                # 内容列表页面，标签
-│   │   ├── evaluate/              # 评价
-│   │   ├── comment/              # 评论
+│   │   ├── detail/              # 详情页面，标签，评价，评论
+│   │   ├── list/                # 内容列表页面
 │   ├── user/                     # 用户相关页面
 │   │   ├── profile/             # 个人资料
 │   │   ├── login/               # 登录
@@ -31,3 +30,5 @@
 │   │   └── dashboard/           # 数据概览
 │   └── uni_modules/             # 管理后台插件
 └── 配置文件（manifest.json、pages.json等）
+├── app.uvue              # 应用入口组件
+├── main.js              # 应用入口文件

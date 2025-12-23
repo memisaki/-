@@ -1,0 +1,60 @@
+{
+  "bsonType": "object",
+  "required": ["content_id", "user_id"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "delete": "doc.user_id == auth.uid",
+    "update": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "content_id": {
+      "bsonType": "string",
+      "title": "内容ID",
+      "foreignKey": "contents._id"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "title": "用户ID",
+      "foreignKey": "uni-id-users._id"
+    },
+    "type": {
+      "bsonType": "int",
+      "title": "点赞类型",
+      "description": "1:内容点赞 2:评论点赞",
+      "defaultValue": 1
+    },
+    "target_id": {
+      "bsonType": "string",
+      "title": "目标ID",
+      "description": "当type=2时，为评论ID"
+    },
+    "create_date": {
+      "bsonType": "timestamp",
+      "title": "点赞时间",
+      "defaultValue": {
+        "$env": "now"
+      }
+    }
+  },
+  "indexes": [
+    {
+      "name": "content_user_idx",
+      "keys": {
+        "content_id": 1,
+        "user_id": 1
+      },
+      "unique": true
+    },
+    {
+      "name": "user_create_date_idx",
+      "keys": {
+        "user_id": 1,
+        "create_date": -1
+      }
+    }
+  ]
+}
