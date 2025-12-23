@@ -1,6 +1,0 @@
-// 本文件用于在 HBuilderX 内使用 JQL 语法操作关联的 uniCloud 空间数据库
-// 仅用于开发调试与远程数据库管理
-
-// 示例：查询 uni-id-users 表的所有数据
-// db.collection('uni-id-users').get();
-

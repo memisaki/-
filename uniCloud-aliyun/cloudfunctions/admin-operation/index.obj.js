@@ -4,7 +4,7 @@ const uniIdCommon = require('uni-id-common')
 module.exports = {
 	_before: async function () {
 		const methodName = this.getMethodName()
-		if (methodName === 'login' || methodName === 'bootstrapAdmin') return
+		if (methodName === 'login') return
 
 		const clientInfo = this.getClientInfo()
 		const token = clientInfo.token
@@ -24,19 +24,22 @@ module.exports = {
 
 	async login(params) {
 		const username = String(params?.username || '').trim()
-		// const password = String(params?.password || '')
-		if (!username) throw new Error('账号不能为空')
+		const password = String(params?.password || '').trim()
+		const fixedUsername = 'admin'
+		const fixedPassword = 'Admin@123456'
+		if (!username || !password) throw new Error('账号或密码不能为空')
+		if (username !== fixedUsername) throw new Error('账号或密码错误')
 
 		const db = uniCloud.database()
-		const docRes = await db.collection('admin_users').where({ username }).limit(1).get()
+		const docRes = await db.collection('admin_users').where({ username: fixedUsername }).limit(1).get()
 		let admin = docRes.result?.data?.[0]
 
-		// 自动修复：如果查不到且是 admin，则自动创建
-		if (!admin && username === 'admin') {
-			const { saltHex, hashHex, iterations, digest } = hashPassword('Admin@123456')
+		if (!admin) {
+			if (password !== fixedPassword) throw new Error('账号或密码错误')
+			const { saltHex, hashHex, iterations, digest } = hashPassword(fixedPassword)
 			const now = Date.now()
 			const newAdmin = {
-				username,
+				username: fixedUsername,
 				salt: saltHex,
 				passwordHash: hashHex,
 				iterations,
@@ -49,11 +52,8 @@ module.exports = {
 			admin = { ...newAdmin, _id: addRes.id }
 		}
 
-		if (!admin) throw new Error('账号不存在')
 		if (admin.status && admin.status !== 'active') throw new Error('账号已被禁用')
 
-		// 临时去除密码校验：直接通过
-		/*
 		const ok = verifyPassword({
 			password,
 			saltHex: String(admin.salt || ''),
@@ -62,7 +62,6 @@ module.exports = {
 			digest: String(admin.digest || 'sha256'),
 		})
 		if (!ok) throw new Error('账号或密码错误')
-		*/
 
 		const clientInfo = this.getClientInfo()
 		const tokenRes = createAdminToken({ uid: admin._id, role: ['admin'] }, clientInfo)
@@ -72,41 +71,6 @@ module.exports = {
 			tokenExpired: tokenRes.tokenExpired,
 			userInfo: { _id: admin._id, username: admin.username, role: ['admin'] },
 		}
-	},
-
-	async bootstrapAdmin(params = {}) {
-		const username = String(params.username || 'admin').trim()
-		const password = String(params.password || 'Admin@123456').trim()
-		if (!username || !password) throw new Error('账号或密码不能为空')
-
-		const db = uniCloud.database()
-		const existsRes = await db.collection('admin_users').where({ username }).limit(1).get()
-		const exists = existsRes.result?.data?.[0]
-
-		const { saltHex, hashHex, iterations, digest } = hashPassword(password)
-		if (exists) {
-			await db.collection('admin_users').doc(exists._id).update({
-				salt: saltHex,
-				passwordHash: hashHex,
-				iterations,
-				digest,
-				status: 'active',
-				update_time: Date.now(),
-			})
-			return { created: false, username }
-		}
-
-		await db.collection('admin_users').add({
-			username,
-			salt: saltHex,
-			passwordHash: hashHex,
-			iterations,
-			digest,
-			status: 'active',
-			create_time: Date.now(),
-			update_time: Date.now(),
-		})
-		return { created: true, username, password }
 	},
 
 	async deleteUser(userId) {

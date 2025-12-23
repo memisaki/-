@@ -97,6 +97,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { callAdminApi } from '../../services/adminApi'
 
 const stats = ref({
 	contents: '--',
@@ -157,27 +158,13 @@ async function refresh() {
 
 async function loadStats() {
 	try {
-		if (!globalThis.uniCloud?.database) {
-			stats.value = { contents: '--', users: '--', comments: '--', todayContents: '--' }
-			return
-		}
-		const db = uniCloud.database()
-		const start = new Date()
-		start.setHours(0, 0, 0, 0)
-		const cmd = db.command
-
-		const [contents, users, comments, todayContents] = await Promise.all([
-			db.collection('contents').count(),
-			db.collection('uni-id-users').count(),
-			db.collection('comments').count(),
-			db.collection('contents').where({ create_time: cmd.gte(start.getTime()) }).count(),
-		])
+		const data = await callAdminApi('dashboard-stats')
 
 		stats.value = {
-			contents: String(contents.result?.total ?? '--'),
-			users: String(users.result?.total ?? '--'),
-			comments: String(comments.result?.total ?? '--'),
-			todayContents: String(todayContents.result?.total ?? '--'),
+			contents: String(data?.contents ?? '--'),
+			users: String(data?.users ?? '--'),
+			comments: String(data?.comments ?? '--'),
+			todayContents: String(data?.todayContents ?? '--'),
 		}
 	} catch (e) {
 		uni.showToast({ title: '加载统计失败', icon: 'none' })
@@ -186,18 +173,9 @@ async function loadStats() {
 
 async function loadRecent() {
 	try {
-		if (!globalThis.uniCloud?.database) {
-			recentContents.value = []
-			recentUsers.value = []
-			return
-		}
-		const db = uniCloud.database()
-		const [contentsRes, usersRes] = await Promise.all([
-			db.collection('contents').orderBy('create_time', 'desc').limit(5).get(),
-			db.collection('uni-id-users').orderBy('register_date', 'desc').limit(5).get(),
-		])
-		recentContents.value = (contentsRes.result?.data ?? []).map(normalizeContent)
-		recentUsers.value = (usersRes.result?.data ?? []).map(normalizeUser)
+		const data = await callAdminApi('dashboard-recent')
+		recentContents.value = (data?.contents ?? []).map(normalizeContent)
+		recentUsers.value = (data?.users ?? []).map(normalizeUser)
 	} catch (e) {
 		uni.showToast({ title: '加载列表失败', icon: 'none' })
 		recentContents.value = []
@@ -211,4 +189,3 @@ onMounted(() => {
 </script>
 
 <style src="../_shared/styles.css"></style>
-

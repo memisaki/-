@@ -95,6 +95,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { callAdminApi } from '../../services/adminApi'
 
 const statusOptions = [
 	{ label: '全部', value: '' },
@@ -168,21 +169,6 @@ function normalizeContent(doc) {
 	}
 }
 
-function buildWhere(db) {
-	const where = {}
-	if (filters.value.status) where.status = filters.value.status
-	if (filters.value.type) where.type = filters.value.type
-	if (filters.value.tag) where.tags = db.command.in([filters.value.tag])
-	if (filters.value.keyword) {
-		const reg = db.RegExp({
-			regexp: filters.value.keyword,
-			options: 'i',
-		})
-		where.title = reg
-	}
-	return where
-}
-
 async function refresh() {
 	await loadPage(1)
 }
@@ -199,15 +185,15 @@ async function resetFilters() {
 async function loadPage(targetPage) {
 	page.value = targetPage
 	try {
-		if (!globalThis.uniCloud?.database) {
-			rows.value = []
-			return
-		}
-		const db = uniCloud.database()
-		const skip = (page.value - 1) * pageSize.value
-		const where = buildWhere(db)
-		const res = await db.collection('contents').where(where).orderBy('create_time', 'desc').skip(skip).limit(pageSize.value).get()
-		rows.value = (res.result?.data ?? []).map(normalizeContent)
+		const data = await callAdminApi('content-list', {
+			page: page.value,
+			pageSize: pageSize.value,
+			keyword: filters.value.keyword,
+			status: filters.value.status,
+			tag: filters.value.tag,
+			type: filters.value.type,
+		})
+		rows.value = (data?.rows ?? []).map(normalizeContent)
 	} catch (e) {
 		uni.showToast({ title: '加载失败', icon: 'none' })
 		rows.value = []
@@ -225,8 +211,7 @@ async function audit(item, status) {
 
 	try {
 		uni.showLoading({ title: '处理中...' })
-		const adminObj = uniCloud.importObject('admin-operation')
-		await adminObj.auditContent(item._id, status)
+		await callAdminApi('content-audit', { id: item._id, status })
 		uni.hideLoading()
 		uni.showToast({ title: '已更新', icon: 'none' })
 		await loadPage(page.value)
@@ -242,8 +227,7 @@ async function remove(item) {
 	if (!res.confirm) return
 	try {
 		uni.showLoading({ title: '删除中...' })
-		const adminObj = uniCloud.importObject('admin-operation')
-		await adminObj.deleteContent(item._id)
+		await callAdminApi('content-delete', { id: item._id })
 		uni.hideLoading()
 		uni.showToast({ title: '已删除', icon: 'none' })
 		await loadPage(page.value)
@@ -269,4 +253,3 @@ onMounted(() => {
 </script>
 
 <style src="../_shared/styles.css"></style>
-

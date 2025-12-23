@@ -65,6 +65,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { callAdminApi } from '../../services/adminApi'
 
 const id = ref('')
 const raw = ref({})
@@ -115,10 +116,7 @@ const rawText = computed(() => {
 
 async function load() {
 	try {
-		if (!globalThis.uniCloud?.database) return
-		const db = uniCloud.database()
-		const res = await db.collection('uni-id-users').doc(id.value).get()
-		raw.value = res.result?.data?.[0] ?? {}
+		raw.value = (await callAdminApi('user-get', { id: id.value })) ?? {}
 	} catch (e) {
 		uni.showToast({ title: '加载失败', icon: 'none' })
 		raw.value = {}
@@ -132,4 +130,3 @@ onLoad((query) => {
 </script>
 
 <style src="../_shared/styles.css"></style>
-

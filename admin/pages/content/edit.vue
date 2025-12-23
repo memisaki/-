@@ -56,6 +56,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { callAdminApi } from '../../services/adminApi'
 import { onLoad } from '@dcloudio/uni-app'
 
 const id = ref('')
@@ -101,10 +102,7 @@ function toTags(tagsText) {
 async function load() {
 	if (!id.value) return
 	try {
-		if (!globalThis.uniCloud?.database) return
-		const db = uniCloud.database()
-		const res = await db.collection('contents').doc(id.value).get()
-		const doc = res.result?.data?.[0] ?? {}
+		const doc = (await callAdminApi('content-get', { id: id.value })) ?? {}
 		const tags = doc.tags ?? doc.tag ?? doc.labels
 		model.value = {
 			title: doc.title ?? '',
@@ -125,27 +123,14 @@ async function save() {
 	}
 	saving.value = true
 	try {
-		if (!globalThis.uniCloud?.database) {
-			uni.showToast({ title: '未配置 uniCloud', icon: 'none' })
-			return
-		}
-		const db = uniCloud.database()
-		const payload = {
+		await callAdminApi('content-save', {
+			id: id.value || undefined,
 			title: model.value.title.trim(),
 			status: model.value.status,
 			cover: model.value.cover.trim(),
 			tags: toTags(model.value.tagsText),
 			body: model.value.body,
-			update_time: Date.now(),
-		}
-		if (id.value) {
-			await db.collection('contents').doc(id.value).update(payload)
-		} else {
-			await db.collection('contents').add({
-				...payload,
-				create_time: Date.now(),
-			})
-		}
+		})
 		uni.showToast({ title: '已保存', icon: 'none' })
 		setTimeout(() => {
 			uni.redirectTo({ url: '/pages/content/index' })
@@ -164,4 +149,3 @@ onLoad((query) => {
 </script>
 
 <style src="../_shared/styles.css"></style>
-

@@ -85,6 +85,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { callAdminApi } from '../../services/adminApi'
 
 const statusOptions = [
 	{ label: '全部', value: '' },
@@ -149,29 +150,6 @@ function normalizeUser(doc) {
 	}
 }
 
-function buildWhere(db) {
-	const where = {}
-	if (filters.value.status) where.status = filters.value.status
-	if (filters.value.keyword) {
-		const reg = db.RegExp({ regexp: filters.value.keyword, options: 'i' })
-		where.nickname = reg
-	}
-	if (filters.value.startDate || filters.value.endDate) {
-		where.register_date = {}
-		if (filters.value.startDate) where.register_date = db.command.gte(new Date(filters.value.startDate).getTime())
-		if (filters.value.endDate) {
-			// 结束日期加一天，覆盖当天
-			const end = new Date(filters.value.endDate).getTime() + 86400000
-			if (where.register_date.code) { // 已经有 gte
-				where.register_date = db.command.and([where.register_date, db.command.lt(end)])
-			} else {
-				where.register_date = db.command.lt(end)
-			}
-		}
-	}
-	return where
-}
-
 async function refresh() {
 	await loadPage(1)
 }
@@ -188,15 +166,15 @@ async function resetFilters() {
 async function loadPage(targetPage) {
 	page.value = targetPage
 	try {
-		if (!globalThis.uniCloud?.database) {
-			rows.value = []
-			return
-		}
-		const db = uniCloud.database()
-		const skip = (page.value - 1) * pageSize.value
-		const where = buildWhere(db)
-		const res = await db.collection('uni-id-users').where(where).orderBy('register_date', 'desc').skip(skip).limit(pageSize.value).get()
-		rows.value = (res.result?.data ?? []).map(normalizeUser)
+		const data = await callAdminApi('user-list', {
+			page: page.value,
+			pageSize: pageSize.value,
+			keyword: filters.value.keyword,
+			status: filters.value.status,
+			startDate: filters.value.startDate,
+			endDate: filters.value.endDate,
+		})
+		rows.value = (data?.rows ?? []).map(normalizeUser)
 	} catch (e) {
 		uni.showToast({ title: '加载失败', icon: 'none' })
 		rows.value = []
@@ -215,9 +193,7 @@ async function toggleStatus(item) {
 	})
 	if (!res.confirm) return
 	try {
-		if (!globalThis.uniCloud?.database) return
-		const db = uniCloud.database()
-		await db.collection('uni-id-users').doc(item._id).update({ status: next, update_time: Date.now() })
+		await callAdminApi('user-set-status', { id: item._id, status: next })
 		await loadPage(page.value)
 		uni.showToast({ title: '已更新', icon: 'none' })
 	} catch (e) {
@@ -233,8 +209,7 @@ async function removeUser(item) {
 	if (!res.confirm) return
 	try {
 		uni.showLoading({ title: '删除中...' })
-		const adminObj = uniCloud.importObject('admin-operation')
-		await adminObj.deleteUser(item._id)
+		await callAdminApi('user-delete', { id: item._id })
 		uni.hideLoading()
 		uni.showToast({ title: '已删除', icon: 'none' })
 		await loadPage(page.value)
@@ -260,4 +235,3 @@ onMounted(() => {
 </script>
 
 <style src="../_shared/styles.css"></style>
-
