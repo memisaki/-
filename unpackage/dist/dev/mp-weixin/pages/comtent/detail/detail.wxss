@@ -1,0 +1,200 @@
+@import "../../../uvue.wxss";
+:host{display:flex;flex-direction:column}
+
+/* 样式保持不变，此处省略以节省篇幅 */
+.container.data-v-1026b34d {
+  height: 100vh;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+.detail-scroll.data-v-1026b34d {
+  flex: 1;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+.post-title.data-v-1026b34d {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
+.post-author.data-v-1026b34d {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+.avatar.data-v-1026b34d {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+}
+.time.data-v-1026b34d {
+  margin-left: auto;
+}
+.post-desc.data-v-1026b34d {
+  background: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+  line-height: 1.6;
+  color: #555;
+}
+.media-container .media.data-v-1026b34d {
+  width: 100%;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+}
+.rating-section.data-v-1026b34d {
+  background: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 30rpx;
+}
+.rating-header.data-v-1026b34d {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  font-weight: bold;
+}
+.rating-distribution .bar-row.data-v-1026b34d {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+}
+.rating-distribution progress.data-v-1026b34d {
+  flex: 1;
+  margin: 0 10rpx;
+}
+.my-rating.data-v-1026b34d {
+  margin-top: 10rpx;
+  color: #007aff;
+  font-weight: bold;
+}
+.comment-input-section.data-v-1026b34d {
+  background: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 30rpx;
+}
+.comment-textarea.data-v-1026b34d {
+  width: 100%;
+  height: 120rpx;
+  padding: 10rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+}
+.rating-input.data-v-1026b34d {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+}
+.star-radio.data-v-1026b34d {
+  display: flex;
+  align-items: center;
+  margin-right: 20rpx;
+}
+.submit-btn.data-v-1026b34d {
+  width: 100%;
+  background-color: #007aff;
+  color: white;
+  border-radius: 10rpx;
+  padding: 15rpx;
+  font-size: 28rpx;
+}
+.section-title.data-v-1026b34d {
+  font-weight: bold;
+  margin: 20rpx 0;
+  color: #333;
+}
+.comment-item.data-v-1026b34d {
+  background: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+}
+.comment-header.data-v-1026b34d {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 10rpx;
+}
+.comment-author.data-v-1026b34d {
+  font-weight: bold;
+}
+.comment-rating.data-v-1026b34d {
+  color: #FFD700;
+}
+.comment-time.data-v-1026b34d {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #999;
+}
+.comment-content.data-v-1026b34d {
+  line-height: 1.6;
+  color: #555;
+}
+.comment-actions.data-v-1026b34d {
+  margin-top: 10rpx;
+  text-align: right;
+}
+.comment-actions button.data-v-1026b34d {
+  padding: 5rpx 15rpx;
+  font-size: 24rpx;
+}
+.loading.data-v-1026b34d, .no-more.data-v-1026b34d, .empty.data-v-1026b34d {
+  text-align: center;
+  padding: 20rpx;
+  color: #999;
+}
+.delete-modal.data-v-1026b34d {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 40rpx;
+  border-radius: 20rpx;
+  z-index: 1000;
+  text-align: center;
+}
+.delete-modal button.data-v-1026b34d {
+  margin-top: 20rpx;
+  padding: 10rpx 30rpx;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  width: 100%;
+}
+.delete-modal button.data-v-1026b34d:first-child {
+  background-color: #ff4d4d;
+  color: white;
+}
+.delete-modal button.data-v-1026b34d:last-child {
+  background-color: #eee;
+  margin-top: 10rpx;
+}
+.back-button.data-v-1026b34d {
+  position: fixed;
+  top: var(--status-bar-height); /* 避开状态栏 */
+  left: 20rpx;
+  z-index: 999;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #007aff;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+}

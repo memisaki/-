@@ -9,11 +9,19 @@
 	"quickapp": {},
 	/* 小程序特有相关 */
 	"mp-weixin": {
-		"appid": "",
+		"appid": "wx5f0bb263bc5b7e4b",
 		"setting": {
 			"urlCheck": false
 		},
-		"usingComponents": true
+		"usingComponents": true,
+		"network": {
+			"requestLegalDomain": [
+				"https://api.next.bspapp.com"
+			],
+			"uploadFileLegalDomain": [
+				"https://api.next.bspapp.com"
+			]
+		}
 	},
 	"mp-alipay": {
 		"usingComponents": true
@@ -59,6 +67,14 @@
 			"modules": {},
 			"icons": {},
 			"splashScreens": {}
+		}
+	},
+	"web": {
+		"router": {
+			"mode": ""
+		},
+		"devServer": {
+			"https": false
 		}
 	}
 }

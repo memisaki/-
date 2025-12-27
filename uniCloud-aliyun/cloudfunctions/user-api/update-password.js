@@ -1,11 +1,6 @@
 'use strict';
-const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
-  const uniId = uniIdCommon.createInstance({
-    context
-  });
-  
   const { 
     old_password, 
     new_password,
@@ -62,19 +57,45 @@ exports.main = async (event, context) => {
   }
   
   try {
-    // 调用 uni-id 修改密码
-    const result = await uniId.updatePwd({
-      uid: context.UID,
-      oldPassword: old_password,
-      newPassword: new_password
-    });
+    const db = uniCloud.database();
+    const usersCollection = db.collection('users');
     
-    if (result.code === 0) {
-      // 记录密码修改日志
-      await recordPasswordChange(context.UID, context);
+    // 获取用户信息
+    const userResult = await usersCollection.doc(context.UID).get();
+    
+    if (!userResult.data || userResult.data.length === 0) {
+      return {
+        code: 404,
+        message: '用户不存在',
+        data: null
+      };
     }
     
-    return result;
+    const user = userResult.data[0];
+    
+    // 验证原密码
+    if (user.password !== old_password) {
+      return {
+        code: 1002,
+        message: '原密码错误',
+        data: null
+      };
+    }
+    
+    // 更新密码
+    await usersCollection.doc(context.UID).update({
+      password: new_password,
+      updated_at: new Date()
+    });
+    
+    // 记录密码修改日志
+    await recordPasswordChange(context.UID, context);
+    
+    return {
+      code: 0,
+      message: '密码修改成功',
+      data: null
+    };
   } catch (error) {
     console.error('[Update Password Error]', error);
     return {

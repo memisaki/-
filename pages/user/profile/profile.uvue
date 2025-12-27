@@ -7,7 +7,7 @@
 
     <!-- 用户信息展示区 -->
     <view v-else class="info-section">
-      <image :src="userInfo.avatar || defaultAvatar" class="avatar" mode="aspectFill"></image>
+      <!-- <image :src="userInfo.avatar || defaultAvatar" class="avatar" mode="aspectFill"></image> -->
 
       <view class="field">
         <text class="label">用户ID：</text>
@@ -62,6 +62,7 @@
       </view>
 
       <!-- 用户统计数据 -->
+	  <!--
       <view class="stats-section">
         <view class="stat-item">
           <text class="stat-number">{{ userStats.content_count || 0 }}</text>
@@ -76,6 +77,7 @@
           <text class="stat-label">点赞</text>
         </view>
       </view>
+	  -->
     </view>
 
     <!-- 操作按钮区 -->

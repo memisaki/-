@@ -1,10 +1,12 @@
 <template>
   <view class="container">
     <!-- 顶部导航按钮 -->
+	<!--
     <view class="top-nav">
       <view class="nav-btn" @click="goUpload">上传</view>
       <view class="nav-btn" @click="goProfile">个人中心</view>
     </view>
+	-->
 
     <!-- 搜索栏区域 -->
     <view class="search-bar">
@@ -153,10 +155,18 @@ const filteredPosts = computed(() => {
 
 // ===== 生命周期 =====
 onMounted(async () => {
-  const userInfo = uni.getStorageSync('userInfo')
-  if (userInfo?._id) {
-    myUserId.value = userInfo._id
+  const token = uni.getStorageSync('uni_id_token')
+  const rawStorage = uni.getStorageSync('user_info')
+  const user_info = rawStorage?.userInfo || rawStorage || {}
+  console.log('【List 页面】token 存在?', !!token)
+  console.log('【List 页面】user_info:', user_info)
+  console.log('【List 页面】user_info._id:', user_info?._id)
+  if (user_info?._id) {
+    myUserId.value = user_info._id
+  }else{
+	  console.warn('⚠️ 未获取到用户 ID')
   }
+  
   await fetchPosts(true)
 })
 
@@ -226,6 +236,8 @@ async function fetchPosts(reset = true) {
     if (showOnlyMine.value && myUserId.value) {
       params.user_id = myUserId.value
     }
+	
+	console.log('【发送给后端的参数】', params)
 
     const res = await uniCloud.callFunction({
       name: 'content-api',
@@ -234,6 +246,8 @@ async function fetchPosts(reset = true) {
         ...params
       }
     })
+	
+	console.log('【后端原始返回】:', res.result)
 
     const { code, data } = res.result
     if (code === 200) {
@@ -241,7 +255,7 @@ async function fetchPosts(reset = true) {
         id: item._id,
         title: item.title || '无标题',
         description: item.text_content || '',
-        author: item.author || '匿名',
+        author: item.user_info?.nickname || '匿名', // ✅ 从 user_info 取 nickname
         createdAt: formatDate(item.created_at),
         type: item.content_type || 'text',
         mediaUrl: item.media_files?.[0]?.url || '',
@@ -310,7 +324,8 @@ function onTypeChange(e) {
   selectedTypeIndex.value = e.detail.value
 }
 function onDateRangeChange(e) {
-  dateRangeIndex.value = e.detail.value
+  dateRangeIndex.value = parseInt(e.detail.value)
+  console.log('【日期索引已更新为】', dateRangeIndex.value, typeof dateRangeIndex.value)
 }
 
 function toggleSelfOnly() {
@@ -380,8 +395,8 @@ function onScrollToLower() {
   flex-direction: column;
   height: 100vh;
   background-color: #f8f9fa;
-  padding: 0 40rpx;
   box-sizing: border-box;
+  padding: 120rpx 40rpx 40rpx; /* 上、左右、下 */
 }
 
 .top-nav {

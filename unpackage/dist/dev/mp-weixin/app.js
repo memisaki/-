@@ -3,26 +3,26 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
 if (!Math) {
   "./pages/index/index.js";
+  "./pages/user/login/login.js";
+  "./pages/user/register/register.js";
+  "./pages/comtent/upload/upload.js";
+  "./pages/comtent/list/list.js";
+  "./pages/comtent/detail/detail.js";
+  "./pages/user/profile/profile.js";
+  "./pages/user/change-password/change-password.js";
 }
 const _sfc_main = common_vendor.defineComponent({
   onLaunch() {
-    common_vendor.index.__f__("log", "at App.uvue:7", "App Launch");
+    common_vendor.index.__f__("log", "at App.uvue:5", "App launched");
   },
   onShow() {
-    common_vendor.index.__f__("log", "at App.uvue:10", "App Show");
   },
   onHide() {
-    common_vendor.index.__f__("log", "at App.uvue:13", "App Hide");
-  },
-  onExit() {
-    common_vendor.index.__f__("log", "at App.uvue:34", "App Exit");
   }
 });
 function createApp() {
   const app = common_vendor.createSSRApp(_sfc_main);
-  return {
-    app
-  };
+  return { app };
 }
 createApp().app.mount("#app");
 exports.createApp = createApp;
